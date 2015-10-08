@@ -90,7 +90,7 @@ Private Function httpGET(url As String, BearerToken As String) As Variant
     Call winhttp1.Open("GET", ServiceURL + url, False)
     
     Call winhttp1.setRequestHeader("Authorization", "Bearer " + BearerToken)
-    Call winhttp1.setRequestHeader("x-pb-version", APIVersion)
+    Call winhttp1.setRequestHeader("x-api-version", APIVersion)
     Call winhttp1.setRequestHeader("Accept-Encoding", "gzip,deflate")
     
     winhttp1.Send
@@ -104,7 +104,7 @@ Private Function httpGET(url As String, BearerToken As String) As Variant
     
         Set parsedDic = m_Linkhub.parse(Response)
         
-        Err.Raise parsedDic.Item("code"), "POPBILL", parsedDic.Item("message")
+        Err.Raise parsedDic.Item("code"), "CLOSEDOWN", parsedDic.Item("message")
         
         Exit Function
         
