@@ -63,7 +63,7 @@ Private Function getSession_token() As String
         refresh = True
     Else
         Dim utcnow As String
-        utcnow = Format(m_Linkhub.UTCTime, "yyyy-MM-ddTHH:mm:ss.sssZ")
+        utcnow = m_Linkhub.GetTime()
         refresh = m_token.expiration < utcnow
     End If
     
@@ -86,14 +86,14 @@ Private Function httpGET(url As String, BearerToken As String) As Variant
      
     Dim winhttp1
     
-    Set winhttp1 = CreateObject("WinHttp.WinHttpRequest.5.1")
-    Call winhttp1.Open("GET", ServiceURL + url)
+    Set winhttp1 = CreateObject("MSXML2.XMLHTTP.6.0")
+    Call winhttp1.Open("GET", ServiceURL + url, False)
     
     Call winhttp1.setRequestHeader("Authorization", "Bearer " + BearerToken)
-    Call winhttp1.setRequestHeader("x-api-version", APIVersion)
-        
-    winhttp1.send
-    winhttp1.WaitForResponse
+    Call winhttp1.setRequestHeader("x-pb-version", APIVersion)
+    Call winhttp1.setRequestHeader("Accept-Encoding", "gzip,deflate")
+    
+    winhttp1.Send
     
     Dim Response As String
     Response = winhttp1.responseText
@@ -104,7 +104,7 @@ Private Function httpGET(url As String, BearerToken As String) As Variant
     
         Set parsedDic = m_Linkhub.parse(Response)
         
-        Err.Raise parsedDic.Item("code"), "CLOSEDOWN", parsedDic.Item("message")
+        Err.Raise parsedDic.Item("code"), "POPBILL", parsedDic.Item("message")
         
         Exit Function
         
@@ -120,9 +120,10 @@ Private Function httpPOST(url As String, BearerToken As String, postdata As Stri
      
     Dim winhttp1
     
-    Set winhttp1 = CreateObject("WinHttp.WinHttpRequest.5.1")
-    Call winhttp1.Open("POST", ServiceURL + url)
+    Set winhttp1 = CreateObject("MSXML2.XMLHTTP.6.0")
+    Call winhttp1.Open("POST", ServiceURL + url, False)
     Call winhttp1.setRequestHeader("x-api-version", APIVersion)
+    Call winhttp1.setRequestHeader("Accept-Encoding", "gzip,deflate")
     
     
     If BearerToken <> "" Then
@@ -131,9 +132,8 @@ Private Function httpPOST(url As String, BearerToken As String, postdata As Stri
     
     Call winhttp1.setRequestHeader("Content-Type", "Application/json")
     
-    winhttp1.send (postdata)
-    winhttp1.WaitForResponse
-    
+    winhttp1.Send (postdata)
+        
     Dim Response As String
     Response = winhttp1.responseText
        
